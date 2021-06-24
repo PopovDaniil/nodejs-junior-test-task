@@ -134,7 +134,12 @@ function getAuthorsBooks(userIds, rating) {
     // Имя функции лучше написать в camelCase - getUsers
     // Если переменная не будет изменяться далее, лучше её объявить как const
     // Выбрать пользователей по нескольким id можно через map
-    const authors = userIds.map(async userId => await getUsers({id: userId}));
+    // Так как getUsers асинхронная, нужно обернуть в Promise.all()
+    const authors = await Promise.all(
+          userIds.map(
+              async userId => await getUsers({id: userId})
+        )
+      );
     // получаем книги с рейтингом выше заданного значения
     // Было бы логичнее, и код стал бы гибче, если бы функция getBooks, как и getUsers, принимала объект и искала книги, соответствующие его полям, в данном случае по rating (getBooks тоже придётся изменить)
     // Если переменная не будет изменяться далее, лучше её объявить как const
@@ -143,7 +148,7 @@ function getAuthorsBooks(userIds, rating) {
     // Лучше объявить новый массив, который будет содержать авторов с заданными id, а в поле books каждого автора записать массив его книг
     const authorsBooks = authors.map(author => ({
       ...author,
-      books: books.filter(book => book.userId === author.userId)
+      books: books.filter(book => book.userId === author.id)
     }))
     //Итог: прежняя функция возвращала массив строк с названиями книг, новая же возвращает массив полноценных объектов-пользователей у каждого из которых в поле books хранится список написанных им книг. Если же понадобится получать только массив названий книг, то можно написать простую функцию-обёртку.
     return authorsBooks;
